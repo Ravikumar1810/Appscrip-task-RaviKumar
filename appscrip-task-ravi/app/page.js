@@ -22,19 +22,40 @@ async function getProducts() {
     return data;
   } catch (error) {
     console.error('FakeStore API failed:', error.message);
-    // Fallback static products so page never shows empty
     return getFallbackProducts();
   }
 }
 
 function getFallbackProducts() {
+  const images = [
+    'https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg',
+    'https://fakestoreapi.com/img/71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_.jpg',
+    'https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_.jpg',
+    'https://fakestoreapi.com/img/71YXzeOuslL._AC_UY879_.jpg',
+    'https://fakestoreapi.com/img/51UDEzMJVpL._AC_UL640_FMwebp_QL65_.jpg',
+    'https://fakestoreapi.com/img/61IBBVJvSDL._AC_SY879_.jpg',
+    'https://fakestoreapi.com/img/61U7T1koQqL._AC_SX679_.jpg',
+    'https://fakestoreapi.com/img/81Zt42ioCgL._AC_SX679_.jpg',
+  ];
+
+  const titles = [
+    'Recycled Backpack Premium Edition',
+    'Milkyway Crossbody Bag',
+    'Artisan Leather Tote',
+    'Woven Shoulder Bag',
+    'Classic Canvas Backpack',
+    'Mini Clutch Bag',
+    'Striped Zip Pouch',
+    'Travel Duffel Bag',
+  ];
+
   return Array.from({ length: 20 }, (_, i) => ({
     id: i + 1,
-    title: 'PPXOC Milkyway Dress In...',
-    price: 29.99,
-    category: "women's clothing",
-    image: 'https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg',
-    rating: { rate: 4.2, count: 120 },
+    title: titles[i % titles.length],
+    price: (19.99 + i * 5).toFixed(2) * 1,
+    category: i % 2 === 0 ? "women's clothing" : "men's clothing",
+    image: images[i % images.length],
+    rating: { rate: 3.5 + (i % 3) * 0.5, count: 50 + i * 10 },
   }));
 }
 
