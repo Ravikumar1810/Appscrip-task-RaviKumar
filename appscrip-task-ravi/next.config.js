@@ -5,23 +5,8 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'fakestoreapi.com',
-        port: '',
-        pathname: '/img/**',
       },
     ],
-  },
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: '*',
-          },
-        ],
-      },
-    ];
   },
 };
 
