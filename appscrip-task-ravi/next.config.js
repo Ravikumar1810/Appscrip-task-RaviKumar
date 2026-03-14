@@ -1,7 +1,27 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['fakestoreapi.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'fakestoreapi.com',
+        port: '',
+        pathname: '/img/**',
+      },
+    ],
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+        ],
+      },
+    ];
   },
 };
 
