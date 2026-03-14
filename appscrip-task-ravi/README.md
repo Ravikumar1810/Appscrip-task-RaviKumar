@@ -3,7 +3,7 @@
 A Product Listing Page (PLP) built for the Appscrip frontend assessment.
 
 ## Live Demo
-🔗 [https://appscrip-task-ravi.netlify.app](https://appscrip-task-ravi.netlify.app)
+🔗 [https://appscrip-task-ravi-kumar.vercel.app/]
 
 ## Tech Stack
 - **Next.js 14** (App Router) — React framework with SSR

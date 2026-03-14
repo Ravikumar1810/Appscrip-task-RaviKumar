@@ -66,7 +66,7 @@ export default function ProductListingPage({ initialProducts }) {
         {/* Toolbar: item count + filter toggle + sort */}
         <div className={styles.toolbar}>
           <div className={styles.toolbarLeft}>
-            <span className={styles.itemCount}>{initialProducts.length * 170} ITEMS</span>
+            <span className={styles.itemCount}>{initialProducts.length > 0 ? `${initialProducts.length * 170} ITEMS` : `${initialProducts.length} ITEMS`}</span>
             <button
               className={styles.filterToggle}
               onClick={() => setFilterVisible(!filterVisible)}
