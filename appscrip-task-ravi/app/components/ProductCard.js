@@ -1,13 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import styles from '../styles/ProductCard.module.css';
 
 export default function ProductCard({ product, priority = false }) {
   const [wishlisted, setWishlisted] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
-  // Create SEO-friendly image name from product title
   const seoImageName = product.title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -16,22 +15,21 @@ export default function ProductCard({ product, priority = false }) {
   const isOutOfStock = product.rating?.count < 10;
   const isNew = product.id <= 3;
 
+  const fallbackImg = 'https://placehold.co/300x350/f8f8f8/999?text=Product';
+
   return (
     <article className={styles.card}>
       <div className={styles.imageWrapper}>
         {isNew && <span className={styles.badgeNew}>NEW PRODUCT</span>}
         {isOutOfStock && <span className={styles.badgeOutOfStock}>OUT OF STOCK</span>}
 
-        <Image
-          src={product.image}
+        <img
+          src={imgError ? fallbackImg : product.image}
           alt={`${product.title} - ${product.category}`}
-          fill
-          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
           className={styles.productImage}
-          style={{ objectFit: 'contain' }}
+          loading={priority ? 'eager' : 'lazy'}
+          onError={() => setImgError(true)}
           title={seoImageName}
-          priority={priority}
-          priority={product.id <= 3}
         />
 
         <button
