@@ -5,7 +5,6 @@ import styles from '../styles/ProductCard.module.css';
 
 export default function ProductCard({ product, priority = false }) {
   const [wishlisted, setWishlisted] = useState(false);
-  const [imgError, setImgError] = useState(false);
 
   const seoImageName = product.title
     .toLowerCase()
@@ -15,8 +14,6 @@ export default function ProductCard({ product, priority = false }) {
   const isOutOfStock = product.rating?.count < 10;
   const isNew = product.id <= 3;
 
-  const fallbackImg = 'https://placehold.co/300x350/f8f8f8/999?text=Product';
-
   return (
     <article className={styles.card}>
       <div className={styles.imageWrapper}>
@@ -24,11 +21,10 @@ export default function ProductCard({ product, priority = false }) {
         {isOutOfStock && <span className={styles.badgeOutOfStock}>OUT OF STOCK</span>}
 
         <img
-          src={imgError ? fallbackImg : product.image}
+          src={product.image}
           alt={`${product.title} - ${product.category}`}
           className={styles.productImage}
           loading={priority ? 'eager' : 'lazy'}
-          onError={() => setImgError(true)}
           title={seoImageName}
         />
 

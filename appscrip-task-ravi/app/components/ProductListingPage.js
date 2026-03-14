@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Header from './Header';
 import FilterSidebar from './FilterSidebar';
 import ProductCard from './ProductCard';
@@ -20,27 +20,45 @@ export default function ProductListingPage({ initialProducts }) {
   const [sortOpen, setSortOpen] = useState(false);
   const [sortValue, setSortValue] = useState('recommended');
   const [filters, setFilters] = useState({});
+  const [products, setProducts] = useState(initialProducts);
+  const [loading, setLoading] = useState(false);
+
+  // If SSR returned empty, fetch client-side as fallback
+  useEffect(() => {
+    if (initialProducts.length === 0) {
+      setLoading(true);
+      fetch('https://fakestoreapi.com/products')
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data) && data.length > 0) {
+            setProducts(data);
+          }
+        })
+        .catch((err) => console.error('Client fetch failed:', err))
+        .finally(() => setLoading(false));
+    }
+  }, [initialProducts]);
 
   const sortedProducts = useMemo(() => {
-    let products = [...initialProducts];
+    let prods = [...products];
     switch (sortValue) {
       case 'price_high':
-        products.sort((a, b) => b.price - a.price);
+        prods.sort((a, b) => b.price - a.price);
         break;
       case 'price_low':
-        products.sort((a, b) => a.price - b.price);
+        prods.sort((a, b) => a.price - b.price);
         break;
       case 'newest':
-        products.sort((a, b) => b.id - a.id);
+        prods.sort((a, b) => b.id - a.id);
         break;
       case 'popular':
-        products.sort((a, b) => (b.rating?.rate || 0) - (a.rating?.rate || 0));
+        prods.sort((a, b) => (b.rating?.rate || 0) - (a.rating?.rate || 0));
         break;
       default:
         break;
     }
-    return products;
-  }, [initialProducts, sortValue]);
+    return prods;
+  }, [products, sortValue]);
 
   const handleSortSelect = (value) => {
     setSortValue(value);
@@ -52,9 +70,7 @@ export default function ProductListingPage({ initialProducts }) {
   return (
     <>
       <Header />
-
       <main className={styles.main}>
-        {/* Hero Section */}
         <section className={styles.hero}>
           <h1 className={styles.heroTitle}>DISCOVER OUR PRODUCTS</h1>
           <p className={styles.heroDesc}>
@@ -63,10 +79,11 @@ export default function ProductListingPage({ initialProducts }) {
           </p>
         </section>
 
-        {/* Toolbar: item count + filter toggle + sort */}
         <div className={styles.toolbar}>
           <div className={styles.toolbarLeft}>
-            <span className={styles.itemCount}>{initialProducts.length > 0 ? `${initialProducts.length * 170} ITEMS` : `${initialProducts.length} ITEMS`}</span>
+            <span className={styles.itemCount}>
+              {products.length > 0 ? `${products.length * 170} ITEMS` : '0 ITEMS'}
+            </span>
             <button
               className={styles.filterToggle}
               onClick={() => setFilterVisible(!filterVisible)}
@@ -75,14 +92,14 @@ export default function ProductListingPage({ initialProducts }) {
               {filterVisible ? (
                 <>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="15 18 9 12 15 6"/>
+                    <polyline points="15 18 9 12 15 6" />
                   </svg>
                   HIDE FILTER
                 </>
               ) : (
                 <>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="9 18 15 12 9 6"/>
+                    <polyline points="9 18 15 12 9 6" />
                   </svg>
                   SHOW FILTER
                 </>
@@ -90,7 +107,6 @@ export default function ProductListingPage({ initialProducts }) {
             </button>
           </div>
 
-          {/* Sort dropdown */}
           <div className={styles.sortWrapper}>
             <button
               className={styles.sortBtn}
@@ -100,7 +116,7 @@ export default function ProductListingPage({ initialProducts }) {
             >
               {selectedSortLabel}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="6 9 12 15 18 9"/>
+                <polyline points="6 9 12 15 18 9" />
               </svg>
             </button>
 
@@ -118,7 +134,7 @@ export default function ProductListingPage({ initialProducts }) {
                     >
                       {sortValue === option.value && (
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className={styles.checkIcon}>
-                          <polyline points="20 6 9 17 4 12"/>
+                          <polyline points="20 6 9 17 4 12" />
                         </svg>
                       )}
                       {option.label}
@@ -130,24 +146,31 @@ export default function ProductListingPage({ initialProducts }) {
           </div>
         </div>
 
-        {/* Content area: sidebar + product grid */}
         <div className={styles.contentArea}>
-          {filterVisible && (
-            <FilterSidebar onFilterChange={setFilters} />
-          )}
+          {filterVisible && <FilterSidebar onFilterChange={setFilters} />}
 
-          {/* Product Grid */}
-          <section
-            className={`${styles.productGrid} ${!filterVisible ? styles.productGridFull : ''}`}
-            aria-label="Product listing"
-          >
-            {sortedProducts.map((product, index) => (
-              <ProductCard key={product.id} product={product} priority={index < 3} />
-            ))}
-          </section>
+          {loading ? (
+            <div className={styles.loadingGrid}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className={styles.skeletonCard}>
+                  <div className={styles.skeletonImg} />
+                  <div className={styles.skeletonText} />
+                  <div className={styles.skeletonTextSm} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <section
+              className={`${styles.productGrid} ${!filterVisible ? styles.productGridFull : ''}`}
+              aria-label="Product listing"
+            >
+              {sortedProducts.map((product, index) => (
+                <ProductCard key={product.id} product={product} priority={index < 3} />
+              ))}
+            </section>
+          )}
         </div>
       </main>
-
       <Footer />
     </>
   );
